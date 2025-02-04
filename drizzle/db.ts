@@ -6,5 +6,5 @@ import * as schema from "./schema";
 export const db = drizzle(sql, { schema });
 
 export const getImages = async () => {
-  return db.query.ImagesTable.findMany();
+  return db.query.images.findMany();
 };

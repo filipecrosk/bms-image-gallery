@@ -1,4 +1,3 @@
-import "@/drizzle/envConfig";
 import { defineConfig } from "drizzle-kit";
 
 if (!process.env.POSTGRES_URL) {

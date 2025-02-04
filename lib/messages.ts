@@ -1,3 +1,6 @@
+import { db } from "@/drizzle/db";
+import { images } from "@/drizzle/schema";
+import { and, eq, ilike, or, count } from "drizzle-orm";
 import { sql } from "@vercel/postgres";
 
 export interface Message {
@@ -15,37 +18,47 @@ export async function getMessages(
   const limit = 12;
   const offset = (page - 1) * limit;
 
-  let query = sql`SELECT * FROM images WHERE 1=1`;
+  let whereClause = undefined;
+  const conditions = [];
 
   if (search) {
-    query = sql`${query} AND (name ILIKE ${`%${search}%`} OR image_url ILIKE ${`%${search}%`})`;
+    conditions.push(
+      or(
+        ilike(images.name, `%${search}%`),
+        ilike(images.image_url, `%${search}%`)
+      )
+    );
   }
 
   if (account) {
-    query = sql`${query} AND account_name = ${account}`;
+    conditions.push(eq(images.account_name, account));
   }
 
-  // query = sql`${query} LIMIT ${limit} OFFSET ${offset}`;
-
-  console.log('query', query);
-  const result = await query;
-
-  // Count query
-  let countQuery = sql`SELECT COUNT(*) as count FROM images WHERE 1=1`;
-
-  if (search) {
-    countQuery = sql`${countQuery} AND (name ILIKE ${`%${search}%`} OR image_url ILIKE ${`%${search}%`})`;
+  if (conditions.length > 0) {
+    whereClause = and(...conditions);
   }
 
-  if (account) {
-    countQuery = sql`${countQuery} AND account_name = ${account}`;
-  }
+  // Get messages
+  const messages = await db
+    .select()
+    .from(images)
+    .where(whereClause)
+    .limit(limit)
+    .offset(offset);
 
-  const countResult = await countQuery;
-  const count = Number(countResult.rows[0].count);
-  const totalPages = Math.ceil(count / limit);
+  // Get total count
+  const countResult = await db
+    .select({
+      count: count(),
+    })
+    .from(images)
+    .where(whereClause);
 
-  return { messages: result.rows, totalPages };
+  const totalCount = Number(countResult[0].count);
+
+  const totalPages = Math.ceil(totalCount / limit);
+
+  return { messages, totalPages };
 }
 
 export async function getTotalPages(
@@ -53,23 +66,46 @@ export async function getTotalPages(
   account: string
 ): Promise<number> {
   const limit = 12;
-  let query = sql`SELECT COUNT(*) as count FROM images WHERE 1=1`;
+
+  let whereClause = undefined;
+  const conditions = [];
 
   if (search) {
-    query = sql`${query} AND (name ILIKE ${`%${search}%`} OR image_url ILIKE ${`%${search}%`})`;
+    conditions.push(
+      or(
+        ilike(images.name, `%${search}%`),
+        ilike(images.image_url, `%${search}%`)
+      )
+    );
   }
 
   if (account) {
-    query = sql`${query} AND account_name = ${account}`;
+    conditions.push(eq(images.account_name, account));
   }
 
-  const result = await query;
-  const count = Number(result.rows[0].count);
-  return Math.ceil(count / limit);
+  if (conditions.length > 0) {
+    whereClause = and(...conditions);
+  }
+
+  const countResult = await db
+    .select({
+      count: count(),
+    })
+    .from(images)
+    .where(whereClause);
+
+  const totalCount = Number(countResult[0].count);
+
+  return Math.ceil(totalCount / limit);
 }
 
 export async function getAccounts(): Promise<string[]> {
-  const result = await sql`SELECT DISTINCT account_name FROM images`;
-  return result.rows.map((row: any) => row.account_name);
-}
+  const result = await db
+    .select({
+      account_name: images.account_name,
+    })
+    .from(images)
+    .groupBy(images.account_name);
 
+  return result.map((row) => row.account_name);
+}

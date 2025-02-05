@@ -14,6 +14,7 @@ export function CopyButton({ text }: { text: string }) {
     toast({
       title: "URL copiada",
       description: "A URL foi copiada para a área de transferência.",
+      duration: 2000,
     })
     setCopying(false)
   }

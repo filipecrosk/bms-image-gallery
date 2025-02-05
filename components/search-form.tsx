@@ -1,21 +1,14 @@
-"use client"
-
+'use client'
 import { useRouter, useSearchParams } from "next/navigation"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { getAccounts } from "@/lib/messages"
 
-export function SearchForm({ initialSearch = "", initialAccount = "" }: { initialSearch?: string; initialAccount?: string }) {
+export function SearchForm({ initialSearch = "", initialAccount = "", accounts = [] }: { initialSearch?: string; initialAccount?: string; accounts: string[] }) {
   const [search, setSearch] = useState(initialSearch)
   const [account, setAccount] = useState(initialAccount)
-  const [accounts, setAccounts] = useState<string[]>([])
   const router = useRouter()
   const searchParams = useSearchParams()
-
-  useEffect(() => {
-    getAccounts().then(setAccounts)
-  }, [])
 
   const handleSearch = (value: string) => {
     setSearch(value)

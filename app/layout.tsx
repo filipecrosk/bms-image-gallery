@@ -6,8 +6,8 @@ import { Toaster } from "@/components/ui/toaster"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: "Image Gallery App",
-  description: "A Next.js app showcasing an image gallery with search and pagination",
+  title: "BMS Image Gallery",
+  description: "Search images used in BMS messages",
 }
 
 export default function RootLayout({

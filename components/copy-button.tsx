@@ -19,8 +19,8 @@ export function CopyButton({ text }: { text: string }) {
   }
 
   return (
-    <Button onClick={handleCopy} disabled={copying}>
-      {copying ? "Copiando..." : "Copiar"}
+    <Button onClick={handleCopy} disabled={copying} className="cursor-pointer hover:bg-gray-100 hover:text-gray-900">
+      {copying ? "Copiando..." : "Copiar URL"}
     </Button>
   )
 }

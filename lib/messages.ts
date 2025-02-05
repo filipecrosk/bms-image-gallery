@@ -12,9 +12,9 @@ export interface Message {
 export async function getMessages(
   page: number,
   search: string,
-  account: string
+  account: string,
+  limit: number = 20
 ): Promise<{ messages: Message[]; totalPages: number }> {
-  const limit = 12;
   const offset = (page - 1) * limit;
 
   let whereClause = undefined;
@@ -66,10 +66,9 @@ export async function getMessages(
 
 export async function getTotalPages(
   search: string,
-  account: string
+  account: string,
+  limit: number = 20
 ): Promise<number> {
-  const limit = 12;
-
   let whereClause = undefined;
   const conditions = [];
 

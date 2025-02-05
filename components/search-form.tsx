@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { getAccounts } from "@/lib/messages"
 
-export function SearchForm({ initialSearch, initialAccount }: { initialSearch: string; initialAccount: string }) {
+export function SearchForm({ initialSearch = "", initialAccount = "" }: { initialSearch?: string; initialAccount?: string }) {
   const [search, setSearch] = useState(initialSearch)
   const [account, setAccount] = useState(initialAccount)
   const [accounts, setAccounts] = useState<string[]>([])
@@ -17,27 +17,26 @@ export function SearchForm({ initialSearch, initialAccount }: { initialSearch: s
     getAccounts().then(setAccounts)
   }, [])
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    updateQueryString(search, account)
+  const handleSearch = (value: string) => {
+    setSearch(value)
+    const params = new URLSearchParams(searchParams)
+    if (value) params.set('search', value)
+    else params.delete('search')
+    params.set('page', '1')
+    router.push(`/?${params.toString()}`)
   }
 
   const handleAccountChange = (value: string) => {
     setAccount(value)
-    updateQueryString(search, value)
-  }
-
-  const updateQueryString = (searchValue: string, accountValue: string) => {
     const params = new URLSearchParams(searchParams)
-    if (searchValue) params.set("search", searchValue)
-    else params.delete("search")
-    if (accountValue) params.set("account", accountValue)
-    else params.delete("account")
+    if (value && value !== 'all') params.set('account', value)
+    else params.delete('account')
+    params.set('page', '1')
     router.push(`/?${params.toString()}`)
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-4 mb-6">
+    <form onSubmit={(e) => { e.preventDefault(); handleSearch(search) }} className="flex gap-4 mb-6">
       <Input
         type="search"
         placeholder="Search by name or URL"
@@ -58,9 +57,7 @@ export function SearchForm({ initialSearch, initialAccount }: { initialSearch: s
           ))}
         </SelectContent>
       </Select>
-      <button type="submit" className="hidden">
-        Search
-      </button>
+      <button type="submit" className="hidden">Search</button>
     </form>
   )
 }

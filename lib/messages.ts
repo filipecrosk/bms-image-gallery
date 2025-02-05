@@ -104,11 +104,8 @@ export async function getTotalPages(
 
 export async function getAccounts(): Promise<string[]> {
   const result = await db
-    .select({
-      account_name: images.accountName,
-    })
-    .from(images)
-    .groupBy(images.accountName);
+    .selectDistinct({ accountName: images.accountName })
+    .from(images);
 
-  return result.map((row) => row.account_name);
+  return result.map((row) => row.accountName);
 }

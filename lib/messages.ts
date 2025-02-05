@@ -24,13 +24,13 @@ export async function getMessages(
     conditions.push(
       or(
         ilike(images.name, `%${search}%`),
-        ilike(images.image_url, `%${search}%`)
+        ilike(images.imageUrl, `%${search}%`)
       )
     );
   }
 
   if (account && account !== "all") {
-    conditions.push(eq(images.account_name, account));
+    conditions.push(eq(images.accountName, account));
   }
 
   if (conditions.length > 0) {
@@ -38,17 +38,17 @@ export async function getMessages(
   }
 
   // Get messages with explicit type casting
-  const messages = await db
+  const messages: Message[] = (await db
     .select({
       id: images.id,
       name: images.name,
-      image_url: images.image_url,
-      account_name: images.account_name,
+      image_url: images.imageUrl,
+      account_name: images.accountName,
     })
     .from(images)
     .where(whereClause)
     .limit(limit)
-    .offset(offset);
+    .offset(offset)) as Message[]; // Type assertion since we know these fields are required
 
   // Get total count with explicit type casting
   const countResult = await db
@@ -77,13 +77,13 @@ export async function getTotalPages(
     conditions.push(
       or(
         ilike(images.name, `%${search}%`),
-        ilike(images.image_url, `%${search}%`)
+        ilike(images.imageUrl, `%${search}%`)
       )
     );
   }
 
   if (account && account !== "all") {
-    conditions.push(eq(images.account_name, account));
+    conditions.push(eq(images.accountName, account));
   }
 
   if (conditions.length > 0) {
@@ -105,10 +105,10 @@ export async function getTotalPages(
 export async function getAccounts(): Promise<string[]> {
   const result = await db
     .select({
-      account_name: images.account_name,
+      account_name: images.accountName,
     })
     .from(images)
-    .groupBy(images.account_name);
+    .groupBy(images.accountName);
 
   return result.map((row) => row.account_name);
 }

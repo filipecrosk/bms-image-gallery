@@ -8,20 +8,21 @@ export async function Gallery({ page, search, account }: { page: number; search:
   const { messages, totalPages } = await getMessages(page, search, account)
 
   if (messages.length === 0) {
-    return <div className="text-center mt-8">No messages found.</div>
+    return <div className="mt-8 text-center">No messages found.</div>
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+    <div className="grid grid-cols-1 gap-6 mt-8 md:grid-cols-2 lg:grid-cols-3">
       {messages.map((message) => (
-        <Card key={message.id}>
+        <Card key={message.id + message.image_url}>
           <CardContent className="p-4">
             <Image
               src={message.image_url || "/placeholder.svg"}
               alt={message.name}
               width={300}
               height={200}
-              className="w-full h-48 object-cover rounded-md"
+              className="object-contain w-full h-48 rounded-md"
+              priority
             />
           </CardContent>
           <CardFooter className="flex flex-col items-start gap-2">

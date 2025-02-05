@@ -1,7 +1,6 @@
 import { db } from "@/drizzle/db";
 import { images } from "@/drizzle/schema";
 import { and, eq, ilike, or, count } from "drizzle-orm";
-import { sql } from "@vercel/postgres";
 
 export interface Message {
   id: number;
@@ -30,7 +29,7 @@ export async function getMessages(
     );
   }
 
-  if (account) {
+  if (account && account !== "all") {
     conditions.push(eq(images.account_name, account));
   }
 
@@ -38,15 +37,20 @@ export async function getMessages(
     whereClause = and(...conditions);
   }
 
-  // Get messages
+  // Get messages with explicit type casting
   const messages = await db
-    .select()
+    .select({
+      id: images.id,
+      name: images.name,
+      image_url: images.image_url,
+      account_name: images.account_name,
+    })
     .from(images)
     .where(whereClause)
     .limit(limit)
     .offset(offset);
 
-  // Get total count
+  // Get total count with explicit type casting
   const countResult = await db
     .select({
       count: count(),
@@ -55,7 +59,6 @@ export async function getMessages(
     .where(whereClause);
 
   const totalCount = Number(countResult[0].count);
-
   const totalPages = Math.ceil(totalCount / limit);
 
   return { messages, totalPages };
@@ -79,7 +82,7 @@ export async function getTotalPages(
     );
   }
 
-  if (account) {
+  if (account && account !== "all") {
     conditions.push(eq(images.account_name, account));
   }
 

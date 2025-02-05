@@ -39,7 +39,7 @@ export function SearchForm({ initialSearch = "", initialAccount = "", accounts =
       />
       <Select value={account} onValueChange={handleAccountChange}>
         <SelectTrigger className="w-[200px]">
-          <SelectValue placeholder="Filter by account" />
+          <SelectValue placeholder="Filter by account">{account === 'all' ? 'All Accounts' : account}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Accounts</SelectItem>

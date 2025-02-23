@@ -22,6 +22,7 @@ export async function Gallery({ page, search, account, limit }: { page: number; 
               width={300}
               height={200}
               className="object-contain w-full rounded-md md:h-28 xl:h-68"
+              unoptimized={true}
               priority
             />
           </CardContent>
